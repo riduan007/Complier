@@ -1,50 +1,86 @@
 #include <iostream>
-#include <fstream>   // for reading file
+#include <fstream>
+#include <string>
 using namespace std;
 
-// Function to check if a word is a valid identifier
-bool isIdentifier(string word) {
-    // Check first character
-    if (!((word[0] >= 'A' && word[0] <= 'Z') ||
-          (word[0] >= 'a' && word[0] <= 'z') ||
-          (word[0] == '_'))) {
-        return false;
-    }
+bool isKeyword(string t) {
+    return (t == "int" || t == "return" || t == "main" || t == "cout");
+}
 
-    // Check the rest of the characters
-    for (int i = 1; i < word.length(); i++) {
-        if (!((word[i] >= 'A' && word[i] <= 'Z') ||
-              (word[i] >= 'a' && word[i] <= 'z') ||
-              (word[i] >= '0' && word[i] <= '9') ||
-              (word[i] == '_'))) {
-            return false;
-        }
-    }
-
+bool isNumber(string t) {
+    for (char c : t)
+        if (!isdigit(c)) return false;
     return true;
 }
 
+bool isPunctuation(char c) {
+    return (c == '(' || c == ')' || c == '{' || c == '}' ||
+            c == ';' || c == ',' );
+}
+
+bool isOperator(char c) {
+    return (c == '=');
+}
+
 int main() {
-    ifstream file("E:/new/AI/projectt/sample.txt");   // open the text file
-    string word;
 
-    if (!file.is_open()) {         // cSf file opened correctly
-        cout << "File not found!" << endl;
+    ifstream file("lab_t.txt");
+    string line, token = "";
 
-    }else if (file.is_open()) {         // cSf file opened correctly
-        cout << "File  found!" << endl;
-
+    if (!file) {
+        cout << "File not found!";
+        return 0;
     }
 
-    // Read each word from the file
-    while (getline(file,word)) {
-        cout << word << " --> ";
-        if (isIdentifier(word))
-            cout << "Valid Identifier" << endl;
-        else
-            cout << "Invalid Identifier" << endl;
+    cout << "Token   ----   Type\n\n";
+
+    while (getline(file, line)) {
+
+        for (int i = 0; i < line.size(); i++) {
+            char c = line[i];
+
+            // If punctuation or operator or space
+            if (isPunctuation(c) || isOperator(c) || c == ' ') {
+
+                // print previous token
+                if (token != "") {
+
+                    if (isKeyword(token))
+                        cout << token << "  ----  keyword\n";
+                    else if (isNumber(token))
+                        cout << token << "  ----  number\n";
+                    else
+                        cout << token << "  ----  identifier\n";
+
+                    token = "";
+                }
+
+                // print the punctuation/operator
+                if (c != ' ') {
+                    if (isPunctuation(c))
+                        cout << c << "  ----  punctuation\n";
+                    else if (isOperator(c))
+                        cout << c << "  ----  operator\n";
+                }
+            }
+            else {
+                token += c;
+            }
+        }
+
+        // leftover token
+        if (token != "") {
+
+            if (isKeyword(token))
+                cout << token << "  ----  keyword\n";
+            else if (isNumber(token))
+                cout << token << "  ----  number\n";
+            else
+                cout << token << "  ----  identifier\n";
+
+            token = "";
+        }
     }
 
-    file.close(); // close the file after reading
     return 0;
 }
