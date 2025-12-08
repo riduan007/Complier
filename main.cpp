@@ -3,84 +3,71 @@
 #include <string>
 using namespace std;
 
+// Check keyword
 bool isKeyword(string t) {
     return (t == "int" || t == "return" || t == "main" || t == "cout");
 }
 
+// Check number
 bool isNumber(string t) {
     for (char c : t)
         if (!isdigit(c)) return false;
     return true;
 }
 
-bool isPunctuation(char c) {
-    return (c == '(' || c == ')' || c == '{' || c == '}' ||
-            c == ';' || c == ',' );
-}
-
-bool isOperator(char c) {
-    return (c == '=');
-}
-
 int main() {
 
     ifstream file("lab_t.txt");
-    string line, token = "";
+    string word = "";
 
     if (!file) {
         cout << "File not found!";
         return 0;
     }
 
-    cout << "Token   ----   Type\n\n";
+    cout << "Token ---- Type\n\n";
 
-    while (getline(file, line)) {
+    char c;
+    while (file.get(c)) {
 
-        for (int i = 0; i < line.size(); i++) {
-            char c = line[i];
+        // If space or punctuation or operator
+        if (c == ' ' || c == '(' || c == ')' || c == '{' || c == '}' ||
+            c == ';' || c == ',' || c == '=') {
 
-            // If punctuation or operator or space
-            if (isPunctuation(c) || isOperator(c) || c == ' ') {
-
-                // print previous token
-                if (token != "") {
-
-                    if (isKeyword(token))
-                        cout << token << "  ----  keyword\n";
-                    else if (isNumber(token))
-                        cout << token << "  ----  number\n";
-                    else
-                        cout << token << "  ----  identifier\n";
-
-                    token = "";
-                }
-
-                // print the punctuation/operator
-                if (c != ' ') {
-                    if (isPunctuation(c))
-                        cout << c << "  ----  punctuation\n";
-                    else if (isOperator(c))
-                        cout << c << "  ----  operator\n";
-                }
+            // Print previous collected word
+            if (word != "") {
+                if (isKeyword(word))
+                    cout << word << " ---- keyword\n";
+                else if (isNumber(word))
+                    cout << word << " ---- number\n";
+                else
+                    cout << word << " ---- identifier\n";
+                word = "";
             }
-            else {
-                token += c;
+
+            // Print the symbol (except space)
+            if (c != ' ') {
+                if (c == '=')
+                    cout << c << " ---- operator\n";
+                else
+                    cout << c << " ---- punctuation\n";
             }
         }
-
-        // leftover token
-        if (token != "") {
-
-            if (isKeyword(token))
-                cout << token << "  ----  keyword\n";
-            else if (isNumber(token))
-                cout << token << "  ----  number\n";
-            else
-                cout << token << "  ----  identifier\n";
-
-            token = "";
+        else {
+            word += c;  // build word
         }
+    }
+
+    // Print leftover last word
+    if (word != "") {
+        if (isKeyword(word))
+            cout << word << " ---- keyword\n";
+        else if (isNumber(word))
+            cout << word << " ---- number\n";
+        else
+            cout << word << " ---- identifier\n";
     }
 
     return 0;
 }
+
